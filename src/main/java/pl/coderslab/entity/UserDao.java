@@ -4,6 +4,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import pl.coderslab.DbUtil;
 
 import java.sql.*;
+import java.util.Arrays;
 
 public class UserDao {
     private static final String READ_USER_QUERY =
@@ -18,11 +19,19 @@ public class UserDao {
     private static final String DELETE_USER_QUERY =
             "DELETE FROM users WHERE id = ?";
 
+    private static final String FIND_ALL_USERS_QUERY =
+            "SELECT * FROM users";
 
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
-    
+    private User[] addToArray(User u, User[] users) {
+        User[] tmpUsers = Arrays.copyOf(users, users.length + 1); // Tworzymy kopię tablicy powiększoną o 1.
+        tmpUsers[users.length] = u; // Dodajemy obiekt na ostatniej pozycji.
+        return tmpUsers; // Zwracamy nową tablicę.
+    }
+
+
     public User create(User user) {
         try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement =
@@ -41,7 +50,6 @@ public class UserDao {
             return null;
         }
     }
-
 
 
     public User read(int userId) {
@@ -84,6 +92,23 @@ public class UserDao {
             e.printStackTrace();
         }
     }
-
-
+    public User[] findAll() {
+        try (Connection conn = DbUtil.getConnection()) {
+            User[] users = new User[0];
+            PreparedStatement statement = conn.prepareStatement(FIND_ALL_USERS_QUERY);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                User user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setUserName(resultSet.getString("username"));
+                user.setEmail(resultSet.getString("email"));
+                user.setPassword(resultSet.getString("password"));
+                users = addToArray(user, users);
+            }
+            return users;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
