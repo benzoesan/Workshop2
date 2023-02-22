@@ -1,9 +1,14 @@
 package pl.coderslab;
 
+import pl.coderslab.entity.User;
+import pl.coderslab.entity.UserDao;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Main {
+
+
     private static final String QUERY1 = "CREATE DATABASE workshop2 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\n";
     private static final String QUERY2 = "CREATE TABLE users (\n" +
             "    id INT(11) NOT NULL AUTO_INCREMENT,\n" +
@@ -13,6 +18,7 @@ public class Main {
             "    PRIMARY KEY (id)\n" +
             ")";
     public static void main(String[] args) {
+
         try (Connection con = DbUtil.getConnection()){
             DbUtil.execute(con,QUERY1);
             DbUtil.execute(con,QUERY2);
